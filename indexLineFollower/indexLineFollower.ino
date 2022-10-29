@@ -13,7 +13,6 @@ bool sensorE = 0;
 bool sensorD = 0;
 
 
-
 int velocidade = 255; // Velocidade em condições perfeitas
 int erro = 145; // Velocidade em caso o carrinho saia da rota
 
@@ -36,23 +35,56 @@ void setup() {
 }
 
 void loop(){
-  if ((sensorE == 0) && (sensorD == 0)){
-    digitalWrite(ControleEsquerdo, velocidade);
-    digitalWrite(ControleDireito, velocidade);
+
+sensorE = digitalRead(SensorE);
+sensorD = digitalRead(SensorD);
+Serial.println("");
+Serial.print("ValorE: ");
+Serial.print(sensorE);
+Serial.print("| ValorD: ");
+Serial.print(sensorD);
+  //Branco == 0, Preto == 1
+  //Manter sensores na linha branca  
+  //Frente
+  if ((sensorE == 0) and (sensorD == 0)){
+    motorA(velocidade);
+    motorB(velocidade);
   }
 
-  if ((sensorE == 1) && (sensorD == 0)){
-    digitalWrite(ControleEsquerdo, erro);
-    digitalWrite(ControleDireito, velocidade);
-  }  
-  if ((sensorE == 0) && (sensorD == 1)){
-    digitalWrite(ControleEsquerdo, velocidade);
-    digitalWrite(ControleDireito, erro);
+  //Direita
+  if ((sensorE == 1) and (sensorD == 0)){
+    motorA(velocidade);
+    motorB(erro);
+  } 
+
+  //Esquerda 
+  if ((sensorE == 0) and (sensorD == 1)){
+   motorA(erro);
+   motorB(velocidade);   
   }
 
-
-if ((sensorE == 1) && (sensorD == 1)){
-  //Definir esquema para dar meia volta
+  // Ré
+  if ((sensorE == 1) and (sensorD == 1)){
+    motorB(0);
+    motorA(0);
   }  
   
+//motorA(velocidade);
+//motorB(velocidade); 
+  
 }
+
+//Motor Direita
+void motorA(int veloc){
+digitalWrite(DireitoPositivo,LOW);
+digitalWrite(DireitoNegativo,HIGH);
+analogWrite(ControleDireito,veloc);
+}
+
+//Motor Esquerda
+void motorB(int veloc){
+digitalWrite(EsquerdoPositivo,LOW);
+digitalWrite(EsquerdoNegativo,HIGH);
+analogWrite(ControleEsquerdo,veloc);
+}
+
