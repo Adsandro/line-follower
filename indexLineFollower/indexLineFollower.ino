@@ -25,7 +25,6 @@ int distancia = 66;
 
 HCSR04 ultrassonico(trigger, echo);
 
-
 int velocidade = 150; // Velocidade em condições perfeitas
 int erro = 90; // Velocidade em caso o carrinho saia da rota
 int parado = 0;
@@ -46,7 +45,7 @@ void setup() {
   pinMode(sensorD, INPUT);  
   pinMode(sensorM, INPUT);
 
-  pinMode(led, INPUT);
+  pinMode(led, OUTPUT);
 
   delay(5000);
 }
@@ -79,26 +78,33 @@ Serial.print(sensorD);
     if (distancia <= 100){
       motorA(parado);
       motorB(parado);
+      luz(HIGH);
     } 
     else if ((sensorE == 0) and (sensorD == 0) and (sensorM == 0))  {
       motorA(velocidade);
       motorB(velocidade);
+      luz(LOW);
+
   }
     else if ((sensorE == 0) and (sensorD == 1) and (sensorM == 0))  {
       motorA(velocidade);
       motorB(velocidade);
+      luz(LOW);
   }
     else if ((sensorE == 1) and (sensorD == 0) and (sensorM == 0))  {
       motorA(velocidade);
       motorB(velocidade);
+      luz(LOW);
   }
    else if ((sensorE == 1) and (sensorD == 0) and (sensorM == 1)) {
       motorA(erro);
       motorB(velocidade);
+      luz(LOW);
   } 
    else if ((sensorE == 0) and (sensorD == 1) and (sensorM == 1)){
       motorA(velocidade);
-      motorB(erro);   
+      motorB(erro);
+      luz(LOW);
   }
 
   delay(0);
@@ -106,15 +112,19 @@ Serial.print(sensorD);
 }
 
 void motorB(int veloc){
-digitalWrite(DireitoPositivo,LOW);
-digitalWrite(DireitoNegativo,HIGH);
-analogWrite(ControleDireito,veloc);
+    digitalWrite(DireitoPositivo,LOW);
+    digitalWrite(DireitoNegativo,HIGH);
+    analogWrite(ControleDireito,veloc);
 }
 
 void motorA(int veloc){
-digitalWrite(EsquerdoPositivo,LOW);
-digitalWrite(EsquerdoNegativo,HIGH);
-analogWrite(ControleEsquerdo,veloc);
+    digitalWrite(EsquerdoPositivo,LOW);
+    digitalWrite(EsquerdoNegativo,HIGH);
+    analogWrite(ControleEsquerdo,veloc);
+}
+
+void luz(char valor){
+    digitalWrite(led, valor);
 }
 
 
