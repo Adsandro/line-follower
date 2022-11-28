@@ -10,6 +10,7 @@
 
 #define SensorE 3 // Declara em qual porta estara saindo os dados dos sensores
 #define SensorD 5
+#define SensorM 4
 
 #define trigger 7
 #define echo 6
@@ -18,18 +19,13 @@
 
 bool sensorE = 0;
 bool sensorD = 0;
+bool sensorM = 0;
 
 int distancia = 66;
 
 HCSR04 ultrassonico(trigger, echo);
 
-int vAltaEsquerda = 100;
-int vbaixaEsquerda = 0;
-
-int vAltaDireita = 80;
-int vBaixaDireita = 0;
-
-int velocidade = 100; // Velocidade em condições perfeitas
+int velocidade = 150; // Velocidade em condições perfeitas
 int erro = 0;// Velocidade em caso o carrinho saia da rota
 int parado = 0;
 
@@ -47,6 +43,7 @@ void setup() {
 
   pinMode(sensorE, INPUT);
   pinMode(sensorD, INPUT);  
+  pinMode(sensorM, INPUT);
 
   pinMode(led, OUTPUT);
 
@@ -57,6 +54,7 @@ void loop(){
 
 sensorE = digitalRead(SensorE);
 sensorD = digitalRead(SensorD);
+sensorM = digitalRead(SensorM);
 distancia = (ultrassonico.distanceInMillimeters());
 
 
@@ -70,6 +68,7 @@ Serial.print(sensorE);
 
 Serial.println("");
 Serial.print("Sensor Meio:");
+Serial.print(sensorM);
 
 Serial.println("");
 Serial.print("Sensor Direito:");
@@ -77,51 +76,79 @@ Serial.print(sensorD);
 
 
     if (distancia <= 100){
-      motorA(parado);
-      motorB(parado);
+      Parado();
       luz(HIGH); 
     }  
-    else if (sensorE == 1 and sensorD ==1) {
-      motorA(vAltaEsquerda);
-      motorB(vAltaDireita);     
-      luz(LOW);
-    }
-    else if (sensorE == 1 and sensorD ==0) {
-      motorA(vAltaEsquerda);
-      motorBtras(erro);     
-      luz(LOW);
-    }
-    else if (sensorE == 0 and sensorD ==1) {
-      motorAtras(erro);
-      motorB(vAltaDireita);     
-      luz(LOW);
-    }
-
     
+else if ((sensorE == 1) and (sensorD == 1) and (sensorM == 0))  {
+      Frente();
+      luz(LOW);
+  }
+
+//SENSOR E e SENSOR M no preto e SENSOR D no branco, vira para esquerda até o M ficar no branco
+else if ((sensorE == 1) and (sensorD == 0) and (sensorM == 1))  {
+      Direita();
+      luz(LOW);
+  }
+
+//SENSOR D e SENSOR M no preto e SENSOR E no branco, vira para direita até o M ficar no branco
+else if ((sensorE == 0) and (sensorD == 1) and (sensorM == 1))  {
+      Esquerda();
+      luz(LOW); 
+      }
+
 }
 
-void motorB(int veloc){
-    digitalWrite(DireitoPositivo,LOW);
-    digitalWrite(DireitoNegativo,HIGH);
-    analogWrite(ControleDireito,veloc);
+
+
+void Frente(){
+  digitalWrite(DireitoPositivo, LOW);
+  digitalWrite(DireitoNegativo, HIGH);
+
+  digitalWrite(EsquerdoPositivo, LOW);
+  digitalWrite(EsquerdoNegativo, HIGH);
+
+  analogWrite(ControleDireito, velocidade);
+  analogWrite(ControleEsquerdo, velocidade);
+  delay(4);
 }
 
-void motorA(int veloc){
-    digitalWrite(EsquerdoPositivo,LOW);
-    digitalWrite(EsquerdoNegativo,HIGH);
-    analogWrite(ControleEsquerdo,veloc);
+
+void Esquerda(){
+  digitalWrite(DireitoPositivo, LOW);
+  digitalWrite(DireitoNegativo, HIGH);
+
+  digitalWrite(EsquerdoPositivo, LOW);
+  digitalWrite(EsquerdoNegativo, LOW);
+
+  analogWrite(ControleDireito, velocidade);
+  analogWrite(ControleEsquerdo, erro);
+  delay(4);
 }
 
-void motorBtras(int veloc){
-    digitalWrite(DireitoPositivo,HIGH);
-    digitalWrite(DireitoNegativo,LOW);
-    analogWrite(ControleDireito,veloc);
+void Direita(){
+  digitalWrite(DireitoPositivo, LOW);
+  digitalWrite(DireitoNegativo, LOW);
+
+  digitalWrite(EsquerdoPositivo, LOW);
+  digitalWrite(EsquerdoNegativo, HIGH);
+
+  analogWrite(ControleDireito, erro);
+  analogWrite(ControleEsquerdo, velocidade);
+  delay(4);
 }
 
-void motorAtras(int veloc){
-    digitalWrite(EsquerdoPositivo,HIGH);
-    digitalWrite(EsquerdoNegativo,LOW);
-    analogWrite(ControleEsquerdo,veloc);
+void Parado(){
+  digitalWrite(DireitoPositivo, LOW);
+  digitalWrite(DireitoNegativo, LOW);
+
+  digitalWrite(EsquerdoPositivo, LOW);
+  digitalWrite(EsquerdoNegativo, LOW);
+
+  analogWrite(ControleDireito, 0);
+  analogWrite(ControleEsquerdo, 0);
+  delay(4);
+
 }
 
 void luz(char valor){
